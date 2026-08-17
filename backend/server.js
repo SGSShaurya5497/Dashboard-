@@ -13,7 +13,27 @@ const gymsRoutes  = require('./routes/gyms');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-const IS_PROD = fs.existsSync(path.join(__dirname, 'public', 'index.html'));
+// Resolve static assets directory with multiple candidate fallbacks for Vercel & local
+const candidateDirs = [
+  path.join(__dirname, 'public'),
+  path.join(process.cwd(), 'backend', 'public'),
+  path.join(process.cwd(), 'public'),
+  path.join(__dirname, '..', 'backend', 'public'),
+];
+
+let PUBLIC = candidateDirs.find(dir => {
+  try {
+    return fs.existsSync(path.join(dir, 'index.html'));
+  } catch {
+    return false;
+  }
+}) || path.join(__dirname, 'public');
+
+const IS_PROD = Boolean(
+  process.env.VERCEL ||
+  process.env.NODE_ENV === 'production' ||
+  fs.existsSync(path.join(PUBLIC, 'index.html'))
+);
 
 // In dev, allow Vite dev server origin; in prod, same-origin so no CORS needed
 if (!IS_PROD) {
@@ -33,13 +53,20 @@ app.use('/api/gyms',  gymsRoutes);
 // Health check
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 
-// Serve built frontend in production
-if (IS_PROD) {
-  const PUBLIC = path.join(__dirname, 'public');
-  app.use(express.static(PUBLIC));
-  // Client-side routing fallback
-  app.get('*', (req, res) => res.sendFile(path.join(PUBLIC, 'index.html')));
-}
+// Serve built frontend
+app.use(express.static(PUBLIC));
+
+// Client-side routing fallback (for all non-API GET requests)
+app.get('*', (req, res) => {
+  if (req.path.startsWith('/api')) {
+    return res.status(404).json({ error: 'Endpoint not found' });
+  }
+  const indexPath = path.join(PUBLIC, 'index.html');
+  if (fs.existsSync(indexPath)) {
+    return res.sendFile(indexPath);
+  }
+  return res.status(404).send('Gymmer Dashboard: index.html not found. Please verify build step.');
+});
 
 if (require.main === module) {
   app.listen(PORT, () => {

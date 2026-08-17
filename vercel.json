@@ -7,7 +7,7 @@
       "config": {
         "includeFiles": [
           "backend/public/**",
-          "backend/data/**"
+          "backend/public/*"
         ]
       }
     }
