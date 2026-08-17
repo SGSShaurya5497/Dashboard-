@@ -1,12 +1,33 @@
 const { DatabaseSync } = require('node:sqlite');
 const bcrypt = require('bcryptjs');
+const os = require('os');
 const path = require('path');
 const fs = require('fs');
 
-const DATA_DIR = path.join(__dirname, 'data');
-if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
+// In serverless environments (Vercel/Lambda), the filesystem at __dirname is read-only.
+// Use os.tmpdir() (/tmp) for SQLite storage.
+let DATA_DIR = path.join(__dirname, 'data');
+let dbPath = path.join(DATA_DIR, 'gymmer.db');
 
-const db = new DatabaseSync(path.join(DATA_DIR, 'gymmer.db'));
+if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+  DATA_DIR = os.tmpdir();
+  dbPath = path.join(DATA_DIR, 'gymmer.db');
+} else {
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+  } catch (err) {
+    if (err.code === 'EROFS') {
+      DATA_DIR = os.tmpdir();
+      dbPath = path.join(DATA_DIR, 'gymmer.db');
+    } else {
+      throw err;
+    }
+  }
+}
+
+const db = new DatabaseSync(dbPath);
 
 // --- Schema ---
 db.exec(`
