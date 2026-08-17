@@ -28,4 +28,14 @@ export const updateLead = (id, data) =>
 export const deleteLead = (id) =>
   api.delete(`/leads/${id}`).then(r => r.data)
 
+// Gym Accounts (Render PostgreSQL)
+export const getGyms = () =>
+  api.get('/gyms').then(r => r.data)
+
+export const createGym = (data) =>
+  api.post('/gyms', data).then(r => r.data)
+
+export const suggestUsername = (name) =>
+  api.get('/gyms/suggest-username', { params: { name } }).then(r => r.data)
+
 export default api

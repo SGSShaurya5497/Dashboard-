@@ -9,6 +9,7 @@ require('./db');
 
 const authRoutes  = require('./routes/auth');
 const leadsRoutes = require('./routes/leads');
+const gymsRoutes  = require('./routes/gyms');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -27,6 +28,7 @@ app.use(cookieParser());
 
 app.use('/api/auth',  authRoutes);
 app.use('/api/leads', leadsRoutes);
+app.use('/api/gyms',  gymsRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => res.json({ ok: true }));
@@ -39,7 +41,11 @@ if (IS_PROD) {
   app.get('*', (req, res) => res.sendFile(path.join(PUBLIC, 'index.html')));
 }
 
-app.listen(PORT, () => {
-  const mode = IS_PROD ? 'production' : 'development';
-  console.log(`🏋️  Gymmer Sales Tracker [${mode}] running on http://localhost:${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    const mode = IS_PROD ? 'production' : 'development';
+    console.log(`🏋️  Gymmer Sales Tracker [${mode}] running on http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;
