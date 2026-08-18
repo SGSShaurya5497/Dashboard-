@@ -211,11 +211,11 @@ export default function CreateGymModal({ onClose, onCreated }) {
         {createdResult && (
           <div className="credentials-view">
             <div className="credentials-alert">
-              <span className="alert-icon">🔒</span>
+              <span className="alert-icon">✨</span>
               <div>
-                <strong>Important: One-Time Display</strong>
+                <strong>Gym Account Created Successfully</strong>
                 <p>
-                  Copy these login credentials now. For security reasons, the plaintext password will <strong>never be shown again</strong> once you close this window.
+                  Copy these login credentials for the gym owner. You can also view, copy, or reset this password anytime from the <strong>Gym Accounts</strong> directory.
                 </p>
               </div>
             </div>

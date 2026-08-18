@@ -860,6 +860,89 @@ tbody td { padding: 9px 13px; vertical-align: middle; font-size: 13px; }
   box-shadow: 0 1px 2px rgba(0,0,0,0.3) inset;
 }
 
+.credential-cell-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.password-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  border: 1px solid #3d352c;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.3) inset;
+  transition: all 0.15s ease;
+}
+
+.password-badge.masked {
+  background: #25201b;
+  color: #8c8275;
+  letter-spacing: 0.15em;
+  font-size: 11px;
+}
+
+.password-badge.revealed {
+  background: #2b2416;
+  color: #ffd166;
+  border-color: #634d1f;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+.btn-icon-subtle {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 3px 5px;
+  font-size: 13px;
+  cursor: pointer;
+  opacity: 0.75;
+  line-height: 1;
+  transition: all 0.15s ease;
+}
+
+.btn-icon-subtle:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.08);
+  border-color: var(--border-lo);
+}
+
+.pwd-encrypted-badge {
+  background: #ebe5d8;
+  color: #7a7061;
+  border: 1px dashed #b8ad9b;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.btn-set-pwd-inline {
+  background: transparent;
+  border: 1px solid var(--primary-hi);
+  color: var(--primary);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-set-pwd-inline:hover {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+.gym-actions-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
 .btn-copy-sm {
   background: linear-gradient(180deg, #ede6d9 0%, #ded6c8 100%);
   border: 1px solid var(--border-lo);
@@ -871,11 +954,62 @@ tbody td { padding: 9px 13px; vertical-align: middle; font-size: 13px; }
   cursor: pointer;
   box-shadow: 0 1px 0 rgba(255,255,255,0.6) inset;
   transition: all 0.1s ease;
+  white-space: nowrap;
 }
 
 .btn-copy-sm:hover {
   background: #ffffff;
   border-color: var(--primary-hi);
+}
+
+.btn-reset-sm {
+  background: linear-gradient(180deg, #ede6d9 0%, #ded6c8 100%);
+  border: 1px solid var(--border-lo);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.6) inset;
+  transition: all 0.1s ease;
+  white-space: nowrap;
+}
+
+.btn-reset-sm:hover {
+  background: #fffdf5;
+  border-color: #d97706;
+  color: #92400e;
+}
+
+.gyms-toast-notification {
+  position: fixed;
+  top: 20px;
+  right: 24px;
+  z-index: 9999;
+  background: #1c1815;
+  color: #a8ffb2;
+  border: 1px solid #3d352c;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: slideInToast 0.25s ease forwards;
+}
+
+@keyframes slideInToast {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .gyms-empty-state {

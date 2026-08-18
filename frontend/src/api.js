@@ -38,4 +38,7 @@ export const createGym = (data) =>
 export const suggestUsername = (name) =>
   api.get('/gyms/suggest-username', { params: { name } }).then(r => r.data)
 
+export const updateGymPassword = (id, password) =>
+  api.put(`/gyms/${id}/password`, { password }).then(r => r.data)
+
 export default api

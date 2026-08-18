@@ -90,6 +90,7 @@ export default function Dashboard({ user, onLogout }) {
         id: newGym.id,
         gym_name: newGym.gym_name,
         username: newGym.username,
+        password: newGym.password,
         gym_id: null,
       },
       ...prev.filter(g => g.username !== newGym.username)

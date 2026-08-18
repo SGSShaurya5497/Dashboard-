@@ -6,6 +6,11 @@ const pgDb = require('../pgDb');
 const { requireAuth } = require('../auth');
 const { slugifyGymName, generateRandom3Digits, generateSecurePassword } = require('../utils/generator');
 
+// Ensure plain_password column exists on startup
+pgDb.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS plain_password character varying(255)').catch(err => {
+  console.warn('Note: users table plain_password check:', err.message);
+});
+
 // All gym management routes require auth
 router.use(requireAuth);
 
@@ -73,7 +78,7 @@ router.get('/suggest-username', async (req, res) => {
 
 /**
  * GET /api/gyms
- * Returns running list of created gyms (name + username only)
+ * Returns running list of created gyms (name, username, and password)
  */
 router.get('/', async (req, res) => {
   try {
@@ -81,6 +86,7 @@ router.get('/', async (req, res) => {
       SELECT 
         u.id, 
         u.email AS username,
+        u.plain_password,
         u.gym_id,
         g.name AS gym_name
       FROM users u
@@ -93,6 +99,7 @@ router.get('/', async (req, res) => {
     const gyms = result.rows.map(row => ({
       id: row.id,
       username: row.username,
+      password: row.plain_password || null,
       gym_name: row.gym_name || formatNameFromSlug(row.username),
       gym_id: row.gym_id,
     }));
@@ -149,17 +156,19 @@ router.post('/', async (req, res) => {
         id,
         email,
         hashed_password,
+        plain_password,
         role,
         gym_id,
         must_reset_password
-      ) VALUES ($1, $2, $3, $4, $5, $6)
-      RETURNING id, email, role, gym_id, must_reset_password
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING id, email, role, gym_id, must_reset_password, plain_password
     `;
 
     const values = [
       userId,
       finalUsername,
       hashedPassword,
+      plainPassword,
       'owner',
       null,
       false,
@@ -167,19 +176,58 @@ router.post('/', async (req, res) => {
 
     await pgDb.query(insertQuery, values);
 
-    // Return response with plaintext password (SHOWN ONCE)
+    // Return response with credentials
     return res.status(201).json({
       success: true,
       gym: {
         id: userId,
         gym_name: trimmedGymName,
         username: finalUsername,
-        password: plainPassword, // Plaintext returned only in this creation response
+        password: plainPassword,
       },
     });
   } catch (err) {
     console.error('Error creating gym owner user in Postgres:', err);
     return res.status(500).json({ error: err.message || 'Failed to create gym account in database' });
+  }
+});
+
+/**
+ * PUT /api/gyms/:id/password
+ * Updates/resets password for an existing gym owner account
+ */
+router.put('/:id/password', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { password } = req.body;
+
+    const newPassword = (password && password.trim())
+      ? password.trim()
+      : generateSecurePassword(10);
+
+    const hashedPassword = await bcrypt.hash(newPassword, BCRYPT_SALT_ROUNDS);
+
+    const updateQuery = `
+      UPDATE users
+      SET hashed_password = $1, plain_password = $2
+      WHERE id = $3 AND role = 'owner'
+      RETURNING id, email, plain_password
+    `;
+
+    const result = await pgDb.query(updateQuery, [hashedPassword, newPassword, id]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Gym owner account not found' });
+    }
+
+    return res.json({
+      success: true,
+      message: 'Password updated successfully',
+      password: newPassword,
+      username: result.rows[0].email,
+    });
+  } catch (err) {
+    console.error('Error updating gym password:', err);
+    return res.status(500).json({ error: 'Failed to update gym password' });
   }
 });
 
