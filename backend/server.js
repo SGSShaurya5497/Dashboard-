@@ -31,8 +31,7 @@ let PUBLIC = candidateDirs.find(dir => {
 
 const IS_PROD = Boolean(
   process.env.VERCEL ||
-  process.env.NODE_ENV === 'production' ||
-  fs.existsSync(path.join(PUBLIC, 'index.html'))
+  process.env.NODE_ENV === 'production'
 );
 
 // In dev, allow Vite dev server origin; in prod, same-origin so no CORS needed

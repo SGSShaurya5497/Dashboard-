@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { updateGymPassword, suggestUsername } from '../api.js'
+import { updateGymPassword, suggestUsername, bulkResetPasswords } from '../api.js'
 
 export default function GymsList({ gyms, loading, onRefresh, onCreateGymClick }) {
   const [search, setSearch] = useState('')
@@ -13,6 +13,7 @@ export default function GymsList({ gyms, loading, onRefresh, onCreateGymClick })
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false)
   const [resetError, setResetError] = useState('')
   const [toastMessage, setToastMessage] = useState('')
+  const [isBulkResetting, setIsBulkResetting] = useState(false)
 
   const filteredGyms = gyms.filter(g => {
     const q = search.toLowerCase()
@@ -57,6 +58,32 @@ export default function GymsList({ gyms, loading, onRefresh, onCreateGymClick })
       newVis[g.id] = nextState
     })
     setVisiblePasswords(newVis)
+  }
+
+  async function handleBulkReset() {
+    if (!window.confirm('This will generate NEW passwords for all gyms that currently have no stored password. Continue?')) return
+    setIsBulkResetting(true)
+    try {
+      const res = await bulkResetPasswords()
+      if (res.success && res.updated.length > 0) {
+        // Auto-reveal all (use a flag; refresh will repopulate gyms)
+        setShowAllPasswords(true)
+        // Pre-set visibility for the IDs we just updated
+        const newVis = {}
+        res.updated.forEach(u => { newVis[u.id] = true })
+        setVisiblePasswords(prev => ({ ...prev, ...newVis }))
+        // Refresh to pull new passwords from DB
+        if (onRefresh) await onRefresh()
+        showToast(`✅ Generated passwords for ${res.updated.length} gym(s)! Passwords are now visible.`)
+      } else {
+        showToast('All gyms already have passwords stored.')
+      }
+    } catch (err) {
+      showToast('❌ Failed to generate passwords. Try again.')
+      console.error(err)
+    } finally {
+      setIsBulkResetting(false)
+    }
   }
 
   async function openResetModal(gym) {
@@ -126,6 +153,17 @@ export default function GymsList({ gyms, loading, onRefresh, onCreateGymClick })
               <button className="clear-btn" onClick={() => setSearch('')}>✕</button>
             )}
           </div>
+
+          {gyms.some(g => !g.password) && (
+            <button
+              className="btn-generate-all"
+              onClick={handleBulkReset}
+              disabled={isBulkResetting}
+              title="Generate new passwords for all gyms that show Encrypted"
+            >
+              {isBulkResetting ? '⏳ Generating…' : '🔑 Generate All Passwords'}
+            </button>
+          )}
 
           <button
             className="btn-secondary"

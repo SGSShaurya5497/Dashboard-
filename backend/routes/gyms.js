@@ -231,4 +231,39 @@ router.put('/:id/password', async (req, res) => {
   }
 });
 
+/**
+ * POST /api/gyms/bulk-reset-passwords
+ * Generates new passwords for all gyms that have plain_password = NULL
+ */
+router.post('/bulk-reset-passwords', async (req, res) => {
+  try {
+    // Find all owner accounts with no stored plain password
+    const nullPassResult = await pgDb.query(
+      `SELECT id, email FROM users WHERE role = 'owner' AND (plain_password IS NULL OR plain_password = '')`
+    );
+
+    if (nullPassResult.rows.length === 0) {
+      return res.json({ success: true, updated: [], message: 'All gyms already have stored passwords.' });
+    }
+
+    const updated = [];
+
+    for (const row of nullPassResult.rows) {
+      const newPassword = generateSecurePassword(10);
+      const hashedPassword = await bcrypt.hash(newPassword, BCRYPT_SALT_ROUNDS);
+      await pgDb.query(
+        `UPDATE users SET hashed_password = $1, plain_password = $2 WHERE id = $3`,
+        [hashedPassword, newPassword, row.id]
+      );
+      updated.push({ id: row.id, username: row.email, password: newPassword });
+    }
+
+    return res.json({ success: true, updated, message: `Passwords generated for ${updated.length} gym(s).` });
+  } catch (err) {
+    console.error('Error bulk resetting passwords:', err);
+    return res.status(500).json({ error: 'Failed to bulk reset passwords' });
+  }
+});
+
 module.exports = router;
+

@@ -41,4 +41,7 @@ export const suggestUsername = (name) =>
 export const updateGymPassword = (id, password) =>
   api.put(`/gyms/${id}/password`, { password }).then(r => r.data)
 
+export const bulkResetPasswords = () =>
+  api.post('/gyms/bulk-reset-passwords').then(r => r.data)
+
 export default api
