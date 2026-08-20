@@ -1,1 +1,1 @@
-﻿2026-08-20 11:42:43 +0530 | chore: remove console.log statements
+﻿2026-08-20 09:24:53 +0530 | fix: handle null values in response
