@@ -1,1 +1,1 @@
-﻿2026-08-21 20:32:35 +0530 | chore: remove console.log statements
+﻿2026-08-21 15:43:53 +0530 | fix: resolve CORS issue in dev
