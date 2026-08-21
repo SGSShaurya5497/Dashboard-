@@ -1,1 +1,1 @@
-﻿2026-08-21 23:23:04 +0530 | fix: resolve minor UI glitch
+﻿2026-08-21 08:24:47 +0530 | fix: patch memory leak in useEffect
