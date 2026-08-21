@@ -1,1 +1,1 @@
-﻿2026-08-21 09:47:40 +0530 | fix: correct API endpoint path
+﻿2026-08-21 15:12:02 +0530 | fix: resolve race condition on load
