@@ -1,1 +1,1 @@
-﻿2026-08-24 21:25:59 +0530 | fix: resolve CORS issue in dev
+﻿2026-08-24 14:47:23 +0530 | fix: patch memory leak in useEffect
