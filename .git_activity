@@ -1,1 +1,1 @@
-﻿2026-08-24 14:47:23 +0530 | fix: patch memory leak in useEffect
+﻿2026-08-24 11:56:19 +0530 | fix: correct API endpoint path
