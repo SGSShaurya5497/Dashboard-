@@ -1,1 +1,1 @@
-﻿2026-08-25 16:20:24 +0530 | refactor: clean up helper functions
+﻿2026-08-25 15:17:43 +0530 | fix: resolve race condition on load
