@@ -1,1 +1,1 @@
-﻿2026-08-26 17:16:45 +0530 | fix: broken link in sidebar
+﻿2026-08-26 21:51:33 +0530 | fix: resolve race condition on load
