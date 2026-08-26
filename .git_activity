@@ -1,1 +1,1 @@
-﻿2026-08-26 15:11:45 +0530 | fix: patch memory leak in useEffect
+﻿2026-08-26 18:13:27 +0530 | feat: add confirmation modal
