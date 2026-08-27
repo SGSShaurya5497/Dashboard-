@@ -1,1 +1,1 @@
-﻿2026-08-27 18:45:52 +0530 | chore: update CI workflow
+﻿2026-08-27 20:50:48 +0530 | fix: patch memory leak in useEffect
