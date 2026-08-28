@@ -1,1 +1,1 @@
-﻿2026-08-28 13:37:12 +0530 | feat: cache API responses
+﻿2026-08-28 15:58:18 +0530 | fix: handle API timeout gracefully
