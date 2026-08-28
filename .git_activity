@@ -1,1 +1,1 @@
-﻿2026-08-28 15:13:13 +0530 | fix: patch memory leak in useEffect
+﻿2026-08-28 11:47:16 +0530 | chore: add pre-commit hook
