@@ -1,1 +1,1 @@
-﻿2026-08-29 12:49:11 +0530 | feat: add dark mode toggle
+﻿2026-08-29 16:48:02 +0530 | fix: patch memory leak in useEffect
