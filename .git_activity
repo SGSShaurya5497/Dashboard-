@@ -1,1 +1,1 @@
-﻿2026-08-29 18:30:41 +0530 | docs: document environment variables
+﻿2026-08-29 21:34:11 +0530 | fix: patch memory leak in useEffect
