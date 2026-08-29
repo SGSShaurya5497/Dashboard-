@@ -1,1 +1,1 @@
-﻿2026-08-29 16:33:25 +0530 | fix: handle empty state gracefully
+﻿2026-08-29 22:16:37 +0530 | fix: patch memory leak in useEffect
