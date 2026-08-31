@@ -1,1 +1,1 @@
-﻿2026-08-31 18:02:26 +0530 | fix: resolve race condition on load
+﻿2026-08-31 10:44:38 +0530 | fix: handle null values in response
