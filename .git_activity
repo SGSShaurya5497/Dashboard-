@@ -1,1 +1,1 @@
-﻿2026-09-02 22:56:07 +0530 | fix: resolve 404 on page refresh
+﻿2026-09-02 23:07:26 +0530 | fix: handle API timeout gracefully
