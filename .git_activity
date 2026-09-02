@@ -1,1 +1,1 @@
-﻿2026-09-02 18:18:55 +0530 | fix: patch memory leak in useEffect
+﻿2026-09-02 22:25:00 +0530 | chore: update .gitignore
