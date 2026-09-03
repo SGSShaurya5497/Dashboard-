@@ -45,3 +45,6 @@ export const bulkResetPasswords = () =>
   api.post('/gyms/bulk-reset-passwords').then(r => r.data)
 
 export default api
+
+
+
