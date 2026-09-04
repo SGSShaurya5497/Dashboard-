@@ -14,50 +14,56 @@ try {
 
 const { Pool } = require('pg');
 
-const connectionString = process.env.GYMWARD_DB_URL || process.env.DATABASE_URL || 'postgresql://gymward:gymward_secure_pass_2026@gymward.in:5432/gymward';
+const rawConnectionString = process.env.GYMWARD_DB_URL || process.env.DATABASE_URL || 'postgresql://gymward:gymward_secure_pass_2026@gymward.in:5432/gymward';
 
 /**
- * Determine whether SSL should be used based on URL or environment.
- * - Self-hosted / Dokploy Docker Postgres runs without SSL by default.
- * - Managed clouds (Render, Neon, Supabase) mandate SSL.
- * - Explicit ?sslmode=require or ?sslmode=disable in the URL always takes precedence.
+ * Clean and prepare connection configuration.
+ * Self-hosted Dokploy VPS (gymward.in) runs without SSL.
+ * If sslmode=require was passed in Vercel, strip it and force sslmode=disable.
  */
-function determineSsl(url) {
-  if (!url) return false;
-  const lower = url.toLowerCase();
+function prepareConnection(rawUrl) {
+  if (!rawUrl) return { url: rawUrl, ssl: false };
 
-  // Explicitly disabled
-  if (lower.includes('sslmode=disable') || process.env.PGSSLMODE === 'disable') {
-    return false;
-  }
+  const lower = rawUrl.toLowerCase();
 
-  // Explicitly required
-  if (
-    lower.includes('sslmode=require') ||
-    lower.includes('ssl=true') ||
-    process.env.PGSSLMODE === 'require'
-  ) {
-    return { rejectUnauthorized: false };
-  }
-
-  // Cloud providers requiring SSL
-  if (
+  const isCloudProvider =
     lower.includes('render.com') ||
     lower.includes('neon.tech') ||
     lower.includes('supabase.co') ||
-    lower.includes('rds.amazonaws.com')
-  ) {
-    return { rejectUnauthorized: false };
+    lower.includes('rds.amazonaws.com');
+
+  const isSelfHosted =
+    lower.includes('gymward.in') ||
+    lower.includes('200.234.43.35') ||
+    lower.includes('localhost') ||
+    lower.includes('127.0.0.1');
+
+  // Dokploy / self-hosted VPS does not support SSL
+  if (isSelfHosted || (!isCloudProvider && !lower.includes('sslmode=require'))) {
+    let cleaned = rawUrl
+      .replace(/([?&])sslmode=[^&]*/gi, '')
+      .replace(/([?&])ssl=[^&]*/gi, '')
+      .replace(/\?&/, '?')
+      .replace(/[?&]$/, '');
+    const sep = cleaned.includes('?') ? '&' : '?';
+    return {
+      url: cleaned + sep + 'sslmode=disable',
+      ssl: false,
+    };
   }
 
-  // Default for self-hosted / Dokploy VPS / localhost: no SSL
-  return false;
+  // Cloud managed DBs that require SSL
+  return {
+    url: rawUrl,
+    ssl: { rejectUnauthorized: false },
+  };
 }
 
 let pool = null;
 
-if (connectionString) {
-  const sslConfig = determineSsl(connectionString);
+if (rawConnectionString) {
+  const { url: connectionString, ssl: sslConfig } = prepareConnection(rawConnectionString);
+
   pool = new Pool({
     connectionString,
     ssl: sslConfig,
@@ -81,5 +87,5 @@ module.exports = {
     return pool.query(text, params);
   },
   pool,
-  determineSsl,
+  prepareConnection,
 };
