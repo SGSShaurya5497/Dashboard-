@@ -61,7 +61,30 @@ app.use('/api/leads', leadsRoutes);
 app.use('/api/gyms',  gymsRoutes);
 
 // Health check
-app.get('/api/health', (req, res) => res.json({ ok: true }));
+app.get('/api/health', (req, res) => res.json({ ok: true, version: 'dokploy-fix-v1' }));
+
+// Database connectivity debug check
+app.get('/api/debug-db', async (req, res) => {
+  try {
+    const raw = process.env.GYMWARD_DB_URL || process.env.DATABASE_URL || 'DEFAULT_FALLBACK';
+    const masked = raw.replace(/:([^:@]+)@/, ':****@');
+    const pgDb = require('./pgDb');
+    const result = await pgDb.query('SELECT NOW() as now, current_database() as db, current_user as user');
+    return res.json({
+      success: true,
+      deployment: 'dokploy-fix-v1',
+      url: masked,
+      data: result.rows[0],
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      deployment: 'dokploy-fix-v1',
+      error: err.message,
+      code: err.code,
+    });
+  }
+});
 
 // Serve built frontend
 app.use(express.static(PUBLIC));
