@@ -1,3 +1,14 @@
+// Load environment variables (.env) if present
+try {
+  const path = require('path');
+  const fs = require('fs');
+  require('dotenv').config();
+  const rootEnv = path.join(__dirname, '..', '.env');
+  if (fs.existsSync(rootEnv)) {
+    require('dotenv').config({ path: rootEnv });
+  }
+} catch {}
+
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');

@@ -31,6 +31,27 @@ function formatNameFromSlug(slug) {
 }
 
 /**
+ * Format database errors with actionable advice for self-hosted / VPS databases
+ */
+function formatDbError(err, defaultMsg) {
+  if (!err) return defaultMsg;
+  const msg = err.message || '';
+  if (err.code === 'ETIMEDOUT' || msg.toLowerCase().includes('timeout')) {
+    return 'Connection to VPS PostgreSQL timed out. Please check that port 5432 is open and allowed in your VPS firewall / Dokploy settings.';
+  }
+  if (err.code === 'ECONNREFUSED') {
+    return 'Connection refused by VPS. Please verify PostgreSQL is running and port 5432 is published on Dokploy.';
+  }
+  if (msg.includes('Connection terminated unexpectedly')) {
+    return 'Connection terminated unexpectedly. If your database is hosted on Dokploy/VPS, ensure port 5432 is directly mapped and SSL is not forced.';
+  }
+  if (msg.includes('not configured')) {
+    return msg;
+  }
+  return msg || defaultMsg;
+}
+
+/**
  * Helper to check if a username (email) already exists in Postgres users table
  */
 async function isUsernameTaken(username) {
@@ -64,15 +85,18 @@ async function generateUniqueUsername(gymName) {
  * Generates an initial username suggestion and password for the modal form
  */
 router.get('/suggest-username', async (req, res) => {
+  const { name } = req.query;
+  const gymName = (name || '').trim();
   try {
-    const { name } = req.query;
-    const gymName = (name || '').trim();
     const username = gymName ? await generateUniqueUsername(gymName) : '';
     const password = generateSecurePassword(10);
     return res.json({ username, password });
   } catch (err) {
-    console.error('Error suggesting username:', err);
-    return res.status(500).json({ error: 'Failed to generate username suggestion' });
+    console.error('Error suggesting username from DB:', err.message);
+    // Gracefully fallback to slugified name and password if DB is unreachable
+    const fallbackUsername = gymName ? slugifyGymName(gymName) : '';
+    const password = generateSecurePassword(10);
+    return res.json({ username: fallbackUsername, password });
   }
 });
 
@@ -107,7 +131,7 @@ router.get('/', async (req, res) => {
     return res.json(gyms);
   } catch (err) {
     console.error('Error fetching gyms from Postgres:', err);
-    return res.status(500).json({ error: 'Failed to fetch gyms list from database' });
+    return res.status(500).json({ error: formatDbError(err, 'Failed to fetch gyms list from database') });
   }
 });
 
@@ -188,7 +212,7 @@ router.post('/', async (req, res) => {
     });
   } catch (err) {
     console.error('Error creating gym owner user in Postgres:', err);
-    return res.status(500).json({ error: err.message || 'Failed to create gym account in database' });
+    return res.status(500).json({ error: formatDbError(err, 'Failed to create gym account in database') });
   }
 });
 
@@ -227,7 +251,7 @@ router.put('/:id/password', async (req, res) => {
     });
   } catch (err) {
     console.error('Error updating gym password:', err);
-    return res.status(500).json({ error: 'Failed to update gym password' });
+    return res.status(500).json({ error: formatDbError(err, 'Failed to update gym password') });
   }
 });
 
@@ -261,7 +285,7 @@ router.post('/bulk-reset-passwords', async (req, res) => {
     return res.json({ success: true, updated, message: `Passwords generated for ${updated.length} gym(s).` });
   } catch (err) {
     console.error('Error bulk resetting passwords:', err);
-    return res.status(500).json({ error: 'Failed to bulk reset passwords' });
+    return res.status(500).json({ error: formatDbError(err, 'Failed to bulk reset passwords') });
   }
 });
 
