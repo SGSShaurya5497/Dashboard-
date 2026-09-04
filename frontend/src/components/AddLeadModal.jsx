@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { createLead } from '../api.js'
 
 const STATUSES = ['Not Contacted', 'Contacted', 'Demo Done', 'Purchased']
-const MEMBERS  = ['Shaurya', 'Shashwat', 'Tanish', 'Daksh']
+const MEMBERS  = ['Shaurya', 'Tanish', 'Daksh']
 
 const EMPTY_FORM = {
   gym_name: '',

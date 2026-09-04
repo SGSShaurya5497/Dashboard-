@@ -52,25 +52,28 @@ db.exec(`
   );
 `);
 
-// --- Seed users (only if table is empty) ---
-const userCountRow = db.prepare('SELECT COUNT(*) as cnt FROM users').get();
-if (userCountRow.cnt === 0) {
-  const SALT_ROUNDS = 10;
-  const users = [
-    { username: 'shaurya',  display_name: 'Shaurya',  password: 'shaurya123' },
-    { username: 'shashwat', display_name: 'Shashwat', password: 'shashwat123' },
-    { username: 'tanish',   display_name: 'Tanish',   password: 'tanish123' },
-    { username: 'daksh',    display_name: 'Daksh',    password: 'daksh123' },
-  ];
+// --- Seed & Sync users (always ensure active team has updated credentials & purge deprecated users) ---
+const SALT_ROUNDS = 10;
+const TEAM_USERS = [
+  { username: 'shaurya', display_name: 'Shaurya', password: 'Shaurya@FitOps#2026' },
+  { username: 'tanish',  display_name: 'Tanish',  password: 'Tanish@LeadForce#2026' },
+  { username: 'daksh',   display_name: 'Daksh',   password: 'Daksh@GymMaster#2026' },
+];
 
-  const insert = db.prepare(
-    'INSERT INTO users (username, password_hash, display_name) VALUES (?, ?, ?)'
-  );
-  for (const u of users) {
-    const hash = bcrypt.hashSync(u.password, SALT_ROUNDS);
-    insert.run(u.username, hash, u.display_name);
+try {
+  // Purge any trace of shashwat
+  db.prepare("DELETE FROM users WHERE username = 'shashwat'").run();
+} catch {}
+
+for (const u of TEAM_USERS) {
+  const existing = db.prepare('SELECT id FROM users WHERE username = ?').get(u.username);
+  const hash = bcrypt.hashSync(u.password, SALT_ROUNDS);
+  if (!existing) {
+    db.prepare('INSERT INTO users (username, password_hash, display_name) VALUES (?, ?, ?)').run(u.username, hash, u.display_name);
+  } else {
+    db.prepare('UPDATE users SET password_hash = ?, display_name = ? WHERE username = ?').run(hash, u.display_name, u.username);
   }
-  console.log('✅ Seeded 4 users into DB');
 }
+console.log('✅ Synced team accounts (Shaurya, Tanish, Daksh) with secure credentials');
 
 module.exports = db;

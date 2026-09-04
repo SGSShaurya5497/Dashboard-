@@ -38,7 +38,7 @@ export default function Login({ onLogin }) {
               autoComplete="username"
               value={username}
               onChange={e => setUsername(e.target.value)}
-              placeholder="e.g. shashwat"
+              placeholder="e.g. shaurya"
               required
               autoFocus
             />

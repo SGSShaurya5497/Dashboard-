@@ -4,7 +4,7 @@ const db = require('../db');
 const { requireAuth } = require('../auth');
 
 const VALID_STATUSES = ['Not Contacted', 'Contacted', 'Demo Done', 'Purchased'];
-const VALID_MEMBERS  = ['Shaurya', 'Shashwat', 'Tanish', 'Daksh'];
+const VALID_MEMBERS  = ['Shaurya', 'Tanish', 'Daksh'];
 
 // All routes require auth
 router.use(requireAuth);

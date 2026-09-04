@@ -8,6 +8,7 @@ const COLUMNS = [
   { key: 'last_contacted_date', label: 'Last Contacted',  sortable: true },
   { key: 'visited_by',          label: 'Visited By',      sortable: false },
   { key: 'notes',               label: 'Notes',           sortable: false },
+  { key: 'created_at',          label: '⏱ Days Since Lead', sortable: true },
   { key: '_actions',            label: '',                sortable: false },
 ]
 

@@ -1,6 +1,6 @@
 const STATUSES = ['Not Contacted', 'Contacted', 'Demo Done', 'Purchased']
 const SORT_OPTIONS = [
-  { value: 'created_at', label: 'Date Added' },
+  { value: 'created_at', label: '⏱ Lead Age / Date' },
   { value: 'gym_name',   label: 'Gym Name' },
   { value: 'area',       label: 'Area' },
   { value: 'status',     label: 'Status' },

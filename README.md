@@ -44,12 +44,11 @@ Then open **http://localhost:5173** in dev, or **http://localhost:3001** after `
 
 ## Login Credentials
 
-| Username   | Password      |
-|------------|---------------|
-| `shaurya`  | `shaurya123`  |
-| `shashwat` | `shashwat123` |
-| `tanish`   | `tanish123`   |
-| `daksh`    | `daksh123`    |
+| Username   | Display Name | Password               |
+|------------|--------------|------------------------|
+| `shaurya`  | Shaurya      | `Shaurya@FitOps#2026`  |
+| `tanish`   | Tanish       | `Tanish@LeadForce#2026`|
+| `daksh`    | Daksh        | `Daksh@GymMaster#2026` |
 
 Passwords are bcrypt-hashed in the DB. To change a password manually:
 
@@ -68,14 +67,15 @@ The SQLite database is at `backend/data/gymmer.db`. Back this file up to preserv
 
 ## Features
 
-- Login with any of the 4 accounts
+- Login with active team accounts (Shaurya, Tanish, Daksh)
 - Dashboard with summary counts (total, by status)
 - Add leads via "+ Add Lead" modal
 - Inline edit any row (click ✏️)
 - Delete a lead (click ✕, confirms before deleting)
+- **Lead Age Tracking**: Displays elapsed days since each lead was captured with color-coded urgency badges (Fresh, Warm, Hot, Urgent) so overdue leads can be prioritized and pushed
 - Filter by Status dropdown
 - Filter by Area (text search)
-- Sort by any column
+- Sort by any column, including Days / Date Added
 
 ## No Features (by design)
 
